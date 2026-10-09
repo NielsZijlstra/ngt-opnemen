@@ -1,0 +1,14 @@
+{
+  "name": "Mijn gebaren",
+  "short_name": "Mijn gebaren",
+  "lang": "nl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1d2433",
+  "theme_color": "#1d2433",
+  "icons": [
+    { "src": "icoon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

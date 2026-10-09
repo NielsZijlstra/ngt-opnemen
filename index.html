@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mijn gebaren">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1d2433">
+  <title>Mijn gebaren</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" href="icoon-512.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Overzicht van alle gebaren -->
+  <section id="scherm-overzicht" class="scherm actief">
+    <header class="balk">
+      <h1>Mijn gebaren</h1>
+      <div class="voortgang">
+        <div class="voortgang-tekst" id="voortgang-tekst"></div>
+        <div class="voortgang-balk"><div id="voortgang-vulling"></div></div>
+      </div>
+      <button class="knop knop-licht" id="knop-versturen">📤 Versturen</button>
+      <button class="knop-icoon" id="knop-instellingen" aria-label="Instellingen">⚙︎</button>
+    </header>
+
+    <div class="tips tips-waarschuwing verborgen" id="beginscherm-tip">
+      <strong>Zet de app eerst op je beginscherm.</strong>
+      Tik bovenin op het deel-icoon (vierkantje met pijl) → <em>Zet op beginscherm</em>, en open de app daarna via het nieuwe icoon.
+      Dan blijven je opnames veilig bewaard.
+    </div>
+
+    <div class="tips" id="tips">
+      <h2>Zo werkt het</h2>
+      <ol>
+        <li>Kies een woord.</li>
+        <li>Druk op de rode knop, ga op je plek staan en zet je handen omlaag.</li>
+        <li>Na het aftellen: maak het gebaar zoals jij het altijd doet.</li>
+        <li>Eindig weer met je handen omlaag.</li>
+        <li>Maak 3 opnames per woord en kies de beste ⭐.</li>
+      </ol>
+      <p>Een woord is klaar als het een ⭐ heeft. Klaar voor vandaag? Tik op 📤 Versturen.</p>
+      <button class="knop" id="knop-tips-weg">Begrepen!</button>
+    </div>
+
+    <div class="raster" id="raster"></div>
+    <p class="melding" id="melding-overzicht"></p>
+  </section>
+
+  <!-- Opnemen -->
+  <section id="scherm-opnemen" class="scherm">
+    <header class="balk">
+      <button class="knop-terug" data-naar="overzicht">← Alle woorden</button>
+      <div class="woord-kop">
+        <div class="woord" id="opnemen-woord"></div>
+        <div class="takes-stippen" id="opnemen-stippen"></div>
+      </div>
+      <button class="knop-terug" id="knop-volgende">Volgende →</button>
+    </header>
+
+    <div class="camera">
+      <video id="camera-beeld" autoplay muted playsinline></video>
+      <div class="kader" id="kader"><span>Zorg dat je hoofd, handen en buik in dit vak passen</span></div>
+      <div class="aftellen" id="aftellen"></div>
+      <div class="opname-rand" id="opname-rand">
+        <div class="opname-label">● Gebaar nu</div>
+        <div class="opname-tijd"><div id="opname-tijd-vulling"></div></div>
+      </div>
+      <div class="camera-melding" id="camera-melding"></div>
+    </div>
+
+    <footer class="onderbalk">
+      <button class="knop knop-licht" id="knop-kiezen">⭐ Kies de beste</button>
+      <button class="knop-opnemen" id="knop-opnemen" aria-label="Opnemen"></button>
+      <div class="onderbalk-ruimte"></div>
+    </footer>
+  </section>
+
+  <!-- Terugkijken na een opname -->
+  <section id="scherm-terugkijken" class="scherm">
+    <header class="balk">
+      <div class="woord-kop"><div class="woord" id="terugkijken-woord"></div></div>
+    </header>
+    <div class="camera">
+      <video id="terugkijken-video" autoplay muted playsinline loop></video>
+    </div>
+    <footer class="onderbalk">
+      <button class="knop knop-licht" id="knop-opnieuw">↺ Nog een keer</button>
+      <button class="knop knop-groot" id="knop-bewaren">✓ Bewaren</button>
+    </footer>
+    <p class="melding" id="melding-terugkijken"></p>
+  </section>
+
+  <!-- Beste opname kiezen -->
+  <section id="scherm-kiezen" class="scherm">
+    <header class="balk">
+      <button class="knop-terug" id="knop-kiezen-terug">← Terug</button>
+      <div class="woord-kop"><div class="woord" id="kiezen-woord"></div></div>
+      <div class="onderbalk-ruimte"></div>
+    </header>
+    <p class="uitleg">Tik op ⭐ bij de opname die het best gelukt is.</p>
+    <div class="takes" id="takes"></div>
+  </section>
+
+  <!-- Versturen -->
+  <section id="scherm-versturen" class="scherm">
+    <header class="balk">
+      <button class="knop-terug" data-naar="overzicht">← Alle woorden</button>
+      <div class="woord-kop"><div class="woord">Opnames versturen</div></div>
+      <div class="onderbalk-ruimte"></div>
+    </header>
+
+    <div class="versturen">
+      <p class="versturen-tekst" id="versturen-samenvatting"></p>
+
+      <div id="stap-maken">
+        <h2>1. Wat wil je versturen?</h2>
+        <label class="keuze">
+          <input type="radio" name="welke" value="alle" checked>
+          <span><strong>Alle opnames</strong><small id="grootte-alle"></small></span>
+        </label>
+        <label class="keuze">
+          <input type="radio" name="welke" value="beste">
+          <span><strong>Alleen de beste ⭐</strong><small id="grootte-beste"></small></span>
+        </label>
+        <button class="knop knop-groot" id="knop-zip-maken">Bestand maken</button>
+        <div class="voortgang-balk verborgen" id="zip-voortgang"><div id="zip-vulling"></div></div>
+      </div>
+
+      <div id="stap-delen" class="verborgen">
+        <h2>2. Bestand versturen</h2>
+        <p class="versturen-tekst">Klaar: <strong id="zip-naam"></strong></p>
+        <p class="versturen-tekst">Tik op <strong>Versturen</strong> en kies in het menu:</p>
+        <ul class="versturen-tekst">
+          <li><strong>Bewaar in Bestanden</strong> → de gedeelde iCloud-map of de USB-stick, of</li>
+          <li><strong>AirDrop</strong> als Niels in de buurt is.</li>
+        </ul>
+        <div class="knoppen-rij">
+          <button class="knop knop-groot" id="knop-delen">📤 Versturen</button>
+          <button class="knop knop-licht" id="knop-downloaden">Downloaden</button>
+        </div>
+      </div>
+
+      <p class="melding" id="melding-versturen"></p>
+      <p class="versturen-tekst zacht">De opnames blijven ook na het versturen op deze iPad staan.</p>
+    </div>
+  </section>
+
+  <!-- Instellingen -->
+  <dialog id="instellingen">
+    <h2>Instellingen</h2>
+    <label>Aftellen
+      <select id="instelling-aftellen">
+        <option value="3">3 seconden</option>
+        <option value="5">5 seconden</option>
+        <option value="10">10 seconden</option>
+      </select>
+    </label>
+    <label>Lengte van een opname
+      <select id="instelling-duur">
+        <option value="3">3 seconden</option>
+        <option value="4">4 seconden</option>
+        <option value="5">5 seconden</option>
+        <option value="6">6 seconden</option>
+      </select>
+    </label>
+    <label>Camera
+      <select id="instelling-camera">
+        <option value="user">Voorkant (je ziet jezelf)</option>
+        <option value="environment">Achterkant (betere kwaliteit)</option>
+      </select>
+    </label>
+    <button class="knop" id="knop-tips-tonen">Uitleg weer tonen</button>
+    <form method="dialog"><button class="knop knop-groot">Klaar</button></form>
+    <p class="versie"><a href="uitleg.html">Uitleg voor ouders</a> · <span id="versie"></span></p>
+  </dialog>
+
+  <script src="zip.js"></script>
+  <script src="opslag.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
