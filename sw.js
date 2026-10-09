@@ -2,7 +2,7 @@
 // IndexedDB en komen hier niet langs.
 'use strict';
 
-const CACHE = 'ngt-opnemen-20261009-2303';
+const CACHE = 'ngt-opnemen-20261009-2314';
 const BESTANDEN = [
   './',
   'index.html',

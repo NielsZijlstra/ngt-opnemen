@@ -2,7 +2,7 @@
 // Met "Opnames versturen" gaan ze als één zip-bestand naar Niels.
 'use strict';
 
-const VERSIE = '20261009-2303';
+const VERSIE = '20261009-2314';
 const TAKES_DOEL = 3;
 
 const $ = (id) => document.getElementById(id);
@@ -410,14 +410,18 @@ function mb(bytes) {
   return `${Math.max(1, Math.round(bytes / 1024 / 1024))} MB`;
 }
 
-function gekozenTakes() {
-  const alleenBeste = document.querySelector('input[name="welke"]:checked').value === 'beste';
-  return staat.gebaren.flatMap((g) =>
-    g.takes.filter((t) => !alleenBeste || t.nummer === g.beste));
+function exportKeuze() {
+  return document.querySelector('input[name="welke"]:checked').value;
+}
+
+function gekozenTakes(keuze = exportKeuze()) {
+  return staat.gebaren.flatMap((g) => g.takes.filter((t) =>
+    keuze === 'alle' || (keuze === 'nieuw' && !t.verstuurd) || (keuze === 'beste' && t.nummer === g.beste)));
 }
 
 function openVersturen() {
   staat.zip = null;
+  document.querySelector('input[name="welke"][value="nieuw"]').checked = true;
   tekenVersturen();
   toonScherm('versturen');
 }
@@ -430,10 +434,12 @@ function tekenVersturen() {
     ? `${takes.length} opnames van ${woorden} woorden. ${nieuw ? `${nieuw} daarvan zijn nog niet verstuurd.` : 'Alles is al een keer verstuurd.'}`
     : 'Er zijn nog geen opnames.';
 
-  const alle = takes.reduce((s, t) => s + t.bytes, 0);
-  const besteTakes = staat.gebaren.flatMap((g) => g.takes.filter((t) => t.nummer === g.beste));
-  $('grootte-alle').textContent = `${takes.length} opnames, ongeveer ${mb(alle)}`;
-  $('grootte-beste').textContent = `${besteTakes.length} opnames, ongeveer ${mb(besteTakes.reduce((s, t) => s + t.bytes, 0))}`;
+  for (const keuze of ['nieuw', 'alle', 'beste']) {
+    const lijst = gekozenTakes(keuze);
+    $(`grootte-${keuze}`).textContent = lijst.length
+      ? `${lijst.length} opnames, ongeveer ${mb(lijst.reduce((s, t) => s + t.bytes, 0))}`
+      : 'geen opnames';
+  }
 
   $('knop-zip-maken').disabled = takes.length === 0;
   $('stap-maken').classList.toggle('verborgen', Boolean(staat.zip));
@@ -449,11 +455,13 @@ function exportNaam() {
 }
 
 async function maakExport() {
-  const takes = gekozenTakes();
-  if (!takes.length) {
+  const keuze = exportKeuze();
+  const takes = gekozenTakes(keuze);
+  if (!takes.length && keuze !== 'nieuw') {
     $('melding-versturen').textContent = 'Er is nog geen opname gekozen als beste.';
     return;
   }
+  // Bij "alleen nieuwe" zonder nieuwe opnames gaan alleen de ⭐-keuzes mee
   $('knop-zip-maken').disabled = true;
   const balk = $('zip-voortgang');
   balk.classList.remove('verborgen');
@@ -465,10 +473,11 @@ async function maakExport() {
       const blob = await opslag.video(take.sleutel);
       if (blob) bestanden.push({ naam: `opnames/${take.gebaar}/${take.bestand}`, blob });
     }
-    // Per woord een info.json, in hetzelfde formaat als op de Mac
+    // Per woord een info.json, in hetzelfde formaat als op de Mac. Bij "alleen
+    // nieuwe" voor elk woord met opnames, zodat een later gekozen ⭐ ook meegaat.
     for (const g of staat.gebaren) {
       const mee = takes.filter((t) => t.gebaar === g.id);
-      if (!mee.length) continue;
+      if (!mee.length && !(keuze === 'nieuw' && g.takes.length)) continue;
       const info = {
         woord: g.woord,
         takes: mee.map(({ sleutel, gebaar: _, verstuurd, ...t }) => t),
